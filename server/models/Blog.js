@@ -49,15 +49,20 @@ const blogSchema = new mongoose.Schema(
       {
         user: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "User"
+          ref: "User",
+          required: true,
         },
-        text: String,
+        text: {
+          type: String,
+          required: true,
+          trim: true,
+        },
         createdAt: {
           type: Date,
-          default: Date.now
-        }
-      }
-    ]
+          default: Date.now,
+        },
+      },
+],
   },
   {
     timestamps: true

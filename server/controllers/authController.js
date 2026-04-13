@@ -22,17 +22,39 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const { email, password } = req.body;
 
-    if (!user) return res.status(400).json({ msg: "User not found" });
+    const user = await User.findOne({ email });
 
-    const isMatch = await bcrypt.compare(req.body.password, user.password);
+    if (!user) {
+      return res.status(400).json({ msg: "User not found" });
+    }
 
-    if (!isMatch) return res.status(400).json({ msg: "Wrong password" });
+    const isMatch = await bcrypt.compare(password, user.password);
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    if (!isMatch) {
+      return res.status(400).json({ msg: "Wrong password" });
+    }
 
-    res.json({ token, user });
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -44,3 +66,4 @@ export const getProfile = (req, res) => {
     userId: req.user.id
   });
 };
+

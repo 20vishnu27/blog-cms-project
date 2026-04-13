@@ -82,3 +82,117 @@ export const deleteBlog = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+//LIKE BLOG
+export const likeBlog = async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+
+    const userId = req.user.id;
+
+    if (blog.likes.includes(userId)) {
+      return res.status(400).json({ message: "Already liked" });
+    }
+
+    blog.likes.push(userId);
+    await blog.save();
+
+    res.json({ message: "Blog liked", likes: blog.likes.length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+//UNLIKE BLOG
+export const unlikeBlog = async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+
+    blog.likes = blog.likes.filter(
+      (id) => id.toString() !== req.user.id
+    );
+
+    await blog.save();
+
+    res.json({ message: "Blog unliked", likes: blog.likes.length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+// CREATE COMMENT
+export const addComment = async (req, res) => {
+  try {
+    const { text } = req.body;
+
+    const blog = await Blog.findById(req.params.id);
+
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+
+    const comment = {
+      user: req.user.id,
+      text,
+    };
+
+    blog.comments.push(comment);
+    await blog.save();
+
+    res.status(201).json({
+      message: "Comment added",
+      comments: blog.comments,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+//GET COMMENT
+export const getComments = async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id).populate(
+      "comments.user",
+      "name email"
+    );
+
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+
+    res.json(blog.comments);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+//DELETE COMMENT
+export const deleteComment = async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+
+    blog.comments = blog.comments.filter(
+      (c) => c._id.toString() !== req.params.commentId
+    );
+
+    await blog.save();
+
+    res.json({ message: "Comment deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+

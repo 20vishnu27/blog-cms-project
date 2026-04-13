@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
-
+import userRoutes from "./routes/userRoutes.js";
 
 dotenv.config();
 
@@ -18,11 +18,13 @@ app.use(cors());
 //Route
 app.use("/api/auth", authRoutes);
 app.use("/api/blogs", blogRoutes);
+app.use("/api/users", userRoutes);
 
 // Test route
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
+
 
 // Connect DB
 mongoose.connect(process.env.MONGO_URI)
