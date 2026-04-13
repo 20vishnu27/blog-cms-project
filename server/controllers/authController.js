@@ -60,6 +60,24 @@ export const login = async (req, res) => {
   }
 };
 
+export const getAdminStats = async (req, res) => {
+    try {
+        const users = await User.countDocuments();
+        const blogs = await Blog.countDocuments();
+        const comments = await Comment.countDocuments();
+
+        res.json({
+            users,
+            blogs,
+            comments
+        });
+
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+
 export const getProfile = (req, res) => {
   res.json({
     msg: "Profile accessed",

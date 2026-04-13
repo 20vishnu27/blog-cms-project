@@ -45,6 +45,12 @@ const blogSchema = new mongoose.Schema(
       }
     ],
 
+    status: {
+      type: String,
+      enum: ["draft", "published"],
+      default: "draft"
+    },
+
     comments: [
       {
         user: {
@@ -62,7 +68,7 @@ const blogSchema = new mongoose.Schema(
           default: Date.now,
         },
       },
-],
+    ],
   },
   {
     timestamps: true

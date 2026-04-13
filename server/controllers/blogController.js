@@ -34,20 +34,79 @@ export const getAllBlogs = async (req, res) => {
   }
 };
 
-// 🟢 GET SINGLE BLOG
+//GET BLOG BY ID
 export const getBlogById = async (req, res) => {
-  try {
-    const blog = await Blog.findById(req.params.id)
-      .populate("author", "name email")
-      .populate("comments.user", "name");
+    try {
+        const blog = await Blog.findById(req.params.id)
+            .populate("author", "name");
 
-    if (!blog) return res.status(404).json({ msg: "Blog not found" });
+        if (!blog) {
+            return res.status(404).json({ message: "Blog not found" });
+        }
 
-    res.json(blog);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+        res.json(blog);
+
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 };
+
+
+// 🟢 GET SINGLE BLOG
+export const getBlogs = async (req, res) => {
+    try {
+        const { keyword, category, tag, page = 1, limit = 5 } = req.query;
+
+        let query = {};
+
+        // 🔍 SEARCH
+        if (keyword) {
+            query.$or = [
+                { title: { $regex: keyword, $options: "i" } },
+                { content: { $regex: keyword, $options: "i" } }
+            ];
+        }
+
+        // 🏷 CATEGORY
+        if (category) {
+            query.category = category;
+        }
+
+        // 🏷 TAGS (multiple supported)
+        if (tag) {
+            const tagsArray = tag.split(",");
+            query.tags = { $in: tagsArray };
+        }
+
+        // 📄 PAGINATION LOGIC
+        const pageNumber = Number(page);
+        const pageSize = Number(limit);
+
+        const skip = (pageNumber - 1) * pageSize;
+
+        // 📊 TOTAL COUNT (IMPORTANT)
+        const total = await Blog.countDocuments(query);
+
+        const blogs = await Blog.find(query)
+            .populate("author", "name")
+            .skip(skip)
+            .limit(pageSize)
+            .sort({ createdAt: -1 }); // newest first
+
+        res.json({
+            total,
+            page: pageNumber,
+            pages: Math.ceil(total / pageSize),
+            count: blogs.length,
+            blogs
+        });
+
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+
 
 // 🟢 UPDATE BLOG
 export const updateBlog = async (req, res) => {
