@@ -4,7 +4,8 @@ import {
   getAllBlogs,
   getBlogById,
   updateBlog,
-  deleteBlog
+  deleteBlog,
+  getBlogs
 } from "../controllers/blogController.js";
 
 import {
@@ -17,6 +18,11 @@ import { protect , adminOnly} from "../middleware/auth.js";
 import { likeBlog, unlikeBlog } from "../controllers/blogController.js";
 
 const router = express.Router();
+
+router.get("/me", protect, (req, res, next) => {
+  req.query.author = req.user.id;
+  next();
+}, getBlogs);
 
 // PUBLIC ROUTES
 router.get("/", getAllBlogs);

@@ -52,58 +52,61 @@ export const getBlogById = async (req, res) => {
 };
 
 
-// 🟢 GET SINGLE BLOG
+// 🟢 GET BLOGS (with filters)
 export const getBlogs = async (req, res) => {
-    try {
-        const { keyword, category, tag, page = 1, limit = 5 } = req.query;
+  try {
+    const { keyword, category, tag, author, page = 1, limit = 5 } = req.query;
 
-        let query = {};
+    let query = {};
 
-        // 🔍 SEARCH
-        if (keyword) {
-            query.$or = [
-                { title: { $regex: keyword, $options: "i" } },
-                { content: { $regex: keyword, $options: "i" } }
-            ];
-        }
-
-        // 🏷 CATEGORY
-        if (category) {
-            query.category = category;
-        }
-
-        // 🏷 TAGS (multiple supported)
-        if (tag) {
-            const tagsArray = tag.split(",");
-            query.tags = { $in: tagsArray };
-        }
-
-        // 📄 PAGINATION LOGIC
-        const pageNumber = Number(page);
-        const pageSize = Number(limit);
-
-        const skip = (pageNumber - 1) * pageSize;
-
-        // 📊 TOTAL COUNT (IMPORTANT)
-        const total = await Blog.countDocuments(query);
-
-        const blogs = await Blog.find(query)
-            .populate("author", "name")
-            .skip(skip)
-            .limit(pageSize)
-            .sort({ createdAt: -1 }); // newest first
-
-        res.json({
-            total,
-            page: pageNumber,
-            pages: Math.ceil(total / pageSize),
-            count: blogs.length,
-            blogs
-        });
-
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    // 🔍 SEARCH
+    if (keyword) {
+      query.$or = [
+        { title: { $regex: keyword, $options: "i" } },
+        { content: { $regex: keyword, $options: "i" } }
+      ];
     }
+
+    // 🏷 CATEGORY
+    if (category) {
+      query.category = category;
+    }
+
+    // 🏷 TAGS
+    if (tag) {
+      const tagsArray = tag.split(",");
+      query.tags = { $in: tagsArray };
+    }
+
+    // 👤 AUTHOR FILTER (🔥 ADD THIS)
+    if (author) {
+      query.author = author;
+    }
+
+    // 📄 PAGINATION
+    const pageNumber = Number(page);
+    const pageSize = Number(limit);
+    const skip = (pageNumber - 1) * pageSize;
+
+    const total = await Blog.countDocuments(query);
+
+    const blogs = await Blog.find(query)
+      .populate("author", "name")
+      .skip(skip)
+      .limit(pageSize)
+      .sort({ createdAt: -1 });
+
+    res.json({
+      total,
+      page: pageNumber,
+      pages: Math.ceil(total / pageSize),
+      count: blogs.length,
+      blogs
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
 
