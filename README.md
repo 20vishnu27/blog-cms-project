@@ -1,4 +1,4 @@
-#Blog-CMS-Project
+**Blog-CMS-Project**
 
 Inkspire is a full-stack blogging platform with an integrated Content Management System (CMS).
 It allows users to read, like, and comment on blogs, while admins can manage content through a dedicated dashboard.
