@@ -26,20 +26,31 @@ export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
+      const images = [
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
+      "https://images.unsplash.com/photo-1492724441997-5dc865305da7",
+      "https://images.unsplash.com/photo-1441974231531-c6227db76b6e",
+    ];
+    const [currentImage, setCurrentImage] = useState(0);
+
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setCurrentImage((prev) => (prev + 1) % images.length);
+      }, 3000);
+      return () => clearInterval(interval);
+    }, []);
+
   // Auth check
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
+  const token = localStorage.getItem("token");
+  const storedUser = localStorage.getItem("user");
 
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
+  if (!token) {
+    router.push("/login");
+  } else if (storedUser) {
+    setUser(JSON.parse(storedUser));
+  }
+}, [router]);
 
   // Fetch blogs from Express backend
   useEffect(() => {
@@ -106,7 +117,13 @@ export default function Home() {
         </div>
       </nav>
 
-      <section className="hero">
+      <section
+        className="hero"
+        style={{
+          backgroundImage: `url("${images[currentImage]}")`,
+          transition: "background-image 1s ease-in-out",
+        }}
+      >
         <div className="overlay">
           <h1>Welcome to my Blog</h1>
           <p>Sharing ideas, stories & knowledge</p>
@@ -267,13 +284,14 @@ export default function Home() {
         }
 
         .hero {
-          height: 80vh;
-          background: url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e")
-            center/cover no-repeat;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
+            height: 80vh;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
 
         .overlay {
           background: rgba(0, 0, 0, 0.6);
