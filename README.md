@@ -6,12 +6,12 @@ It allows users to read, like, and comment on blogs, while admins can manage con
 🎯 ***Features***
 
   👤 **User Features**
-     - User authentication (Signup/Login)
-     - View all blog posts
-     - Read individual blog posts
-     - Like and comment on posts
+    - User authentication (Signup/Login)
+    - View all blog posts
+    - Read individual blog posts
+    - Like and comment on posts
   🔐 **Admin (CMS) Features**
-     - Create, edit, delete blog posts
+  - Create, edit, delete blog posts
      - Manage users
      - Manage categories/tags
      - Dashboard for content control
